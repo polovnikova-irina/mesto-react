@@ -29,5 +29,5 @@
 
 * Добавить коммментарии;
 
-### [Ссылка на сайт](https://polovnikova-irina.github.io/mesto)
+### [Ссылка на сайт](https://polovnikova-irina.github.io/mesto/)
 
