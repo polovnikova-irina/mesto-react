@@ -1,31 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { api } from "../utils/api";
+import React from "react";
 import { Card } from "./Card";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 export function Main(props) {
-  const [userName, setUserName] = useState("");
-  const [userDescription, setUserDescription] = useState("");
-  const [userAvatar, setUserAvatar] = useState("");
-  const [cards, setСards] = useState([]);
 
-  useEffect(() => {
-    Promise.all([api.getInfo(), api.getCards()])
-      .then(([dataUser, dataCard]) => {
-        setUserName(dataUser.name);
-        setUserDescription(dataUser.about);
-        setUserAvatar(dataUser.avatar);
-        setСards(dataCard);
-      })
-      .catch((err) =>
-        console.log("Ошибка при загрузке данных о пользователе:", err)
-      );
-  }, []);
+  const currentUser = React.useContext(CurrentUserContext);
 
   return (
     <main className="content">
       <section className="profile">
         <div className="profile__edit">
-          <img className="profile__avatar" src={userAvatar} alt="Аватар" />
+          <img className="profile__avatar" src={currentUser.avatar} alt="Аватар" />
           <div className="profile__overlay">
             <button
               onClick={props.onEditAvatar}
@@ -37,7 +22,7 @@ export function Main(props) {
         </div>
         <div className="profile__info-wrapper">
           <div className="profile__info">
-            <h1 className="profile__title">{userName}</h1>
+            <h1 className="profile__title">{currentUser.name}</h1>
             <button
               onClick={props.onEditProfile}
               className="profile__edit-button"
@@ -45,7 +30,7 @@ export function Main(props) {
               aria-label="Редактировать профиль"
             />
           </div>
-          <p className="profile__subtitle">{userDescription}</p>
+          <p className="profile__subtitle">{currentUser.about}</p>
         </div>
         <button
           onClick={props.onAddPlace}
@@ -56,8 +41,8 @@ export function Main(props) {
       </section>
       <section className="photos" aria-label="Фото-контейнер">
         <ul className="photo">
-          {cards.map((card) => (
-            <Card key={card._id} card={card} onCardClick={props.onCardClick} />
+          {props.cards.map((item) => (
+            <Card key={item._id} card={item} onCardClick={props.onCardClick} onDelete={props.onDelete} onCardLike={props.onCardLike} />
           ))}
         </ul>
       </section>

@@ -26,8 +26,4 @@ export function PopupWithForm(props) {
   );
 }
 
-// <PopupWithForm
-//   name="confirm"
-//   title="Вы уверены?"
-//   buttonName = "Да">
-// </PopupWithForm>
+

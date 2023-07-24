@@ -1,28 +1,50 @@
-import React,  { useState } from "react";
+import React,  { useEffect, useState } from "react";
 import '../pages/index.css';
+import { api } from "../utils/api";
 import { Header } from './Header'
 import { Main } from './Main'
 import { Footer } from './Footer'
 import { PopupWithForm } from './PopupWithForm'
 import { ImagePopup } from './ImagePopup'
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function App() {
-  const [isEditProfilePopupOpen, setisEditProfilePopupOpen] = useState(false)
-  const [isAddPlacePopupOpen, setisAddPlacePopupOpen] = useState(false)
-  const [isEditAvatarPopupOpen, setisEditAvatarPopupOpen] = useState(false)
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false)
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false)
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false)
+  const [isDeleteCard, setIsDeleteCard] = useState(false)
   const [selectedCard, setSelectedCard] = useState({})
   const [isImagePopup, setIsImagePopup] = useState(false)
 
+  const [currentUser, setСurrentUser] = useState({})
+  const [cards, setCards] = useState([])
+
+  useEffect(() => {
+    Promise.all([api.getInfo(), api.getCards()])
+    .then(([dataUser, dataCards]) => {
+      setСurrentUser({
+          name: dataUser.name,
+          about: dataUser.about,
+          avatar: dataUser.avatar,
+          _id: dataUser._id,
+      })
+      setCards(dataCards)
+    })
+      .catch((err) =>
+        console.log("Ошибка при загрузке данных о пользователе:", err)
+      );
+  }, []);
+
   const handleEditAvatarClick = () => {
-    setisEditAvatarPopupOpen(true)
+    setIsEditAvatarPopupOpen(true)
   };
 
   const handleEditProfileClick = () => {
-    setisEditProfilePopupOpen(true)
+    setIsEditProfilePopupOpen(true)
   }
 
   const  handleAddPlaceClick = () => {
-    setisAddPlacePopupOpen(true)
+    setIsAddPlacePopupOpen(true)
   }
 
   const handleCardClick = (card) => {
@@ -30,14 +52,29 @@ function App() {
     setIsImagePopup(true)
   }
 
+  const handleCardDelete = () => {
+    setIsDeleteCard(true)
+  }
+
+  const handleCardLike = (card) => {
+    // есть ли уже лайк на этой карточке
+    const isLiked = card.likes.some(item => item._id === currentUser._id);
+    // Отправляем запрос в API и получаем обновлённые данные карточки
+    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+    });
+} 
+
   const closeAllPopups = () => {
-    setisEditAvatarPopupOpen(false)
-    setisEditProfilePopupOpen(false)
-    setisAddPlacePopupOpen(false)
+    setIsEditAvatarPopupOpen(false)
+    setIsEditProfilePopupOpen(false)
+    setIsAddPlacePopupOpen(false)
     setIsImagePopup(false)
+    setIsDeleteCard(false)
   };
 
   return (
+    <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
     <Header />
 
@@ -46,6 +83,9 @@ function App() {
     onAddPlace={handleAddPlaceClick}
     onEditAvatar={handleEditAvatarClick}
     onCardClick={handleCardClick}
+    onDelete={handleCardDelete}
+    onCardLike={handleCardLike}
+    cards={cards}
     />
 
     <Footer />
@@ -138,6 +178,14 @@ function App() {
           <span className="photo-link-input-error popup__input-error" />
         </label>
       </PopupWithForm>
+
+      <PopupWithForm
+        isDelete={isDeleteCard}
+        onClose={closeAllPopups}
+          name="confirm"
+          title="Вы уверены?"
+          buttonName = "Да">
+      </PopupWithForm>
   
       <ImagePopup 
       card={selectedCard}
@@ -145,6 +193,7 @@ function App() {
       onClose={closeAllPopups} 
       />
   </div>
+  </CurrentUserContext.Provider>
   );
 }
 
