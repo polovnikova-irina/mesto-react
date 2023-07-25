@@ -7,18 +7,21 @@ import { Footer } from './Footer'
 import { PopupWithForm } from './PopupWithForm'
 import { ImagePopup } from './ImagePopup'
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import { EditProfilePopup } from './EditProfilePopup'
+import { EditAvatarPopup} from './EditAvatarPopup'
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false)
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false)
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false)
-  const [isDeleteCard, setIsDeleteCard] = useState(false)
+  // const [isDeletePopupCard, setIsDeletePopupCard] = useState(false)
   const [selectedCard, setSelectedCard] = useState({})
   const [isImagePopup, setIsImagePopup] = useState(false)
 
   const [currentUser, setСurrentUser] = useState({})
   const [cards, setCards] = useState([])
 
+  //выполнение Загрузка информации о пользователе с сервера и Добавление карточек с сервера
   useEffect(() => {
     Promise.all([api.getInfo(), api.getCards()])
     .then(([dataUser, dataCards]) => {
@@ -52,25 +55,68 @@ function App() {
     setIsImagePopup(true)
   }
 
-  const handleCardDelete = () => {
-    setIsDeleteCard(true)
+  //Обновление новых данных пользователя 
+  const handleUpdateUser = (userData) => {
+    api.sentUsersData(userData)
+    .then((data) => {
+      setСurrentUser(data)
+    })
+    .catch((err) =>
+        console.log("Ошибка при изменении данных о пользователе:", err)
+      );
   }
 
+  //Обновление аватара
+  const handleUpdateAvatar = (data) => {
+    api.addAvatar(data.avatar)
+    .then((res) => {
+      setСurrentUser(res)
+    })
+    .catch((err) =>
+        console.log("Ошибка при изменении данных об аватаре:", err)
+      );
+  }
+
+  //Удаление карточки
+  const handleCardDelete = (card) => {
+    // setIsDeletePopupCard(true);
+    api.deleteCard(card._id)
+      .then(() => {
+        //исключаем из массива state те карточки, у которых _id совпадает с _id переданной карточки card
+        setCards((state) => state.filter((c) => c._id !== card._id));
+      })
+      .catch((error) => {
+        console.error('Ошибка при удалении карточки:', error);
+      });
+  };
+
+  //Постановка и снятие лайка
   const handleCardLike = (card) => {
     // есть ли уже лайк на этой карточке
     const isLiked = card.likes.some(item => item._id === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-    });
-} 
+    if(!isLiked) {
+      api.addLike(card._id)
+      .then((newCard) => {
+        setCards((state) => state.map((c) => c._id === card._id ? newCard : c))
+      })
+    } else {
+      api.deleteLike(card._id)
+        .then((newCard) => {
+          setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+        })
+        .catch(error => {
+          console.error('Ошибка при удалении лайка:', error);
+        });
+    }
+  }
 
   const closeAllPopups = () => {
     setIsEditAvatarPopupOpen(false)
     setIsEditProfilePopupOpen(false)
     setIsAddPlacePopupOpen(false)
     setIsImagePopup(false)
-    setIsDeleteCard(false)
+    // setIsDeletePopupCard(false)
   };
 
   return (
@@ -83,67 +129,25 @@ function App() {
     onAddPlace={handleAddPlaceClick}
     onEditAvatar={handleEditAvatarClick}
     onCardClick={handleCardClick}
-    onDelete={handleCardDelete}
+    onCardDelete={handleCardDelete}
     onCardLike={handleCardLike}
     cards={cards}
     />
 
     <Footer />
 
-    <PopupWithForm
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        name="popup__title" 
-        title="Обновить аватар"
-        buttonName = "Сохранить">
-           <label className="popup__form-element">
-              <input
-                id="avatar-input"
-                type="text"
-                className="popup__item popup__item_el_link"
-                name="avatar"
-                placeholder="Ссылка на картинку"
-                pattern="https?://.*\.(png|jpg|jpeg|gif)"
-                required=""
-              />
-              <span className="avatar-input-error popup__input-error" />
-            </label>
-      </PopupWithForm> 
+    <EditAvatarPopup 
+      isOpen={isEditAvatarPopupOpen}
+      onClose={closeAllPopups}
+      onUpdateAvatar={handleUpdateAvatar}
+    />
 
-    <PopupWithForm
+    <EditProfilePopup
         isOpen={isEditProfilePopupOpen}
         onClose={closeAllPopups}
-        name="edit-profile" 
-        title="Редактировать профиль" 
-        buttonName = "Сохранить"
-      >
-     <label className="popup__form-element">
-            <input
-              id="name-input"
-              type="text"
-              className="popup__item popup__item_el_title"
-              name="name"
-              minLength={2}
-              maxLength={40}
-              placeholder="Имя"
-              required=""
-            />
-            <span className="name-input-error popup__input-error" />
-          </label>
-          <label className="popup__form-element">
-            <input
-              id="about-input"
-              type="text"
-              className="popup__item popup__item_el_subtitle"
-              name="job"
-              minLength={2}
-              maxLength={200}
-              placeholder="О себе"
-              required=""
-            />
-            <span className="about-input-error popup__input-error" />
-          </label>    
-      </PopupWithForm>
+        onUpdateUser={handleUpdateUser}
+      /> 
+       
 
       <PopupWithForm
         isOpen={isAddPlacePopupOpen}
@@ -179,13 +183,13 @@ function App() {
         </label>
       </PopupWithForm>
 
-      <PopupWithForm
+      {/* <PopupWithForm
         isDelete={isDeleteCard}
         onClose={closeAllPopups}
           name="confirm"
           title="Вы уверены?"
           buttonName = "Да">
-      </PopupWithForm>
+      </PopupWithForm> */}
   
       <ImagePopup 
       card={selectedCard}
