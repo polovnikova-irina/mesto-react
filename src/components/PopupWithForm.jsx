@@ -15,7 +15,12 @@ export function PopupWithForm(props) {
           aria-label="Закрыть"
         />
         <h2 className="popup__title">{props.title}</h2>
-        <form className="popup__form" name={props.name} noValidate="" onSubmit={props.onSubmit}>
+        <form
+          className="popup__form"
+          name={props.name}
+          noValidate=""
+          onSubmit={props.onSubmit}
+        >
           {props.children}
           <button className="popup__save-button" type="submit">
             {props.buttonName}
@@ -25,5 +30,3 @@ export function PopupWithForm(props) {
     </div>
   );
 }
-
-

@@ -3,14 +3,17 @@ import { Card } from "./Card";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 export function Main(props) {
-
   const currentUser = React.useContext(CurrentUserContext);
 
   return (
     <main className="content">
       <section className="profile">
         <div className="profile__edit">
-          <img className="profile__avatar" src={currentUser.avatar} alt="Аватар" />
+          <img
+            className="profile__avatar"
+            src={currentUser.avatar}
+            alt="Аватар"
+          />
           <div className="profile__overlay">
             <button
               onClick={props.onEditAvatar}
@@ -42,7 +45,13 @@ export function Main(props) {
       <section className="photos" aria-label="Фото-контейнер">
         <ul className="photo">
           {props.cards.map((item) => (
-            <Card key={item._id} card={item} onCardClick={props.onCardClick} onCardDelete={props.onCardDelete} onCardLike={props.onCardLike} />
+            <Card
+              key={item._id}
+              card={item}
+              onCardClick={props.onCardClick}
+              onCardDelete={props.onCardDelete}
+              onCardLike={props.onCardLike}
+            />
           ))}
         </ul>
       </section>
