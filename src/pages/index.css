@@ -40,7 +40,6 @@
 @import url(../blocks/photo/__delete/photo__delete.css);
 @import url(../blocks/photo/__like-container/photo__like-container.css);
 @import url(../blocks/photo/__like-count/photo__like-count.css);
-@import url(../blocks/photo/__image-placeholder/photo__image-placeholder.css);
 
 /*footer*/
 @import url(../blocks/footer/footer.css);

@@ -25,16 +25,13 @@ export function Card({ card, onCardClick, onCardDelete, onCardLike }) {
   return (
     <>
       <li className="photo__cell">
-        {card.link ? (
           <img
             onClick={handleClick}
             className="photo__image"
             src={card.link}
             alt={`Изображение ${card.name}`}
           />
-        ) : (
-          <div className="photo__image-placeholder">Карточка не загружена</div>
-        )}
+
         <div className="photo__caption">
           <h2 className="photo__title">{card.name}</h2>
           <div className="photo__like-container">
