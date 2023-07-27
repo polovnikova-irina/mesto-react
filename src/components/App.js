@@ -8,15 +8,16 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import { EditProfilePopup } from "./EditProfilePopup";
 import { EditAvatarPopup } from "./EditAvatarPopup";
 import { AddPlacePopup } from "./AddPlacePopup";
-// import { ConfirmPopup } from './ConfirmPopup'
+import { ConfirmPopup } from './ConfirmPopup'
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  // const [isDeletePopupCard, setIsDeletePopupCard] = useState(false)
+  const [isDeletePopupCard, setIsDeletePopupCard] = useState(false)
   const [selectedCard, setSelectedCard] = useState({});
   const [isImagePopup, setIsImagePopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const [currentUser, setСurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -31,6 +32,11 @@ function App() {
 
   const handleAddPlaceClick = () => {
     setIsAddPlacePopupOpen(true);
+  };
+
+  const handleTrashIconClick = (card) => {
+    setSelectedCard(card);
+    setIsDeletePopupCard(true); 
   };
 
   const handleCardClick = (card) => {
@@ -55,6 +61,7 @@ function App() {
   }, []);
 
   const handleUpdateUser = (userData) => {
+    setIsLoading(true);
     api
       .sentUsersData(userData)
       .then((data) => {
@@ -63,10 +70,12 @@ function App() {
       })
       .catch((err) =>
         console.log("Ошибка при изменении данных о пользователе:", err)
-      );
+      )
+      .finally(() => setIsLoading(false));
   };
 
   const handleUpdateAvatar = (data) => {
+    setIsLoading(true);
     api
       .addAvatar(data)
       .then((res) => {
@@ -75,31 +84,36 @@ function App() {
       })
       .catch((err) =>
         console.log("Ошибка при изменении данных об аватаре:", err)
-      );
+      )
+      .finally(() => setIsLoading(false));
   };
 
   const handleAddPlaceSubmit = (cardData) => {
+    setIsLoading(true);
     api
       .createCard(cardData)
       .then((newCards) => {
         setCards([newCards, ...cards]);
         closeAllPopups();
       })
-      .catch((err) => console.log("Ошибка при добавлении карточки:", err));
+      .catch((err) => console.log("Ошибка при добавлении карточки:", err))
+      .finally(() => setIsLoading(false));
   };
 
   const handleCardDelete = (card) => {
+    setIsLoading(true);
     api
       .deleteCard(card._id)
       .then(() => {
         //исключаем из массива state те карточки, у которых _id совпадает с _id переданной карточки card
-        //// Удаляем карточку из состояния cards после успешного удаления
+        //Удаляем карточку из состояния cards после успешного удаления
         setCards((state) => state.filter((c) => c._id !== card._id));
-        // closeAllPopups();
+        closeAllPopups();
       })
       .catch((error) => {
         console.error("Ошибка при удалении карточки:", error);
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleCardLike = (card) => {
@@ -134,7 +148,7 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsImagePopup(false);
-    // setIsDeletePopupCard(false)
+    setIsDeletePopupCard(false)
   };
 
   return (
@@ -147,7 +161,7 @@ function App() {
           onAddPlace={handleAddPlaceClick}
           onEditAvatar={handleEditAvatarClick}
           onCardClick={handleCardClick}
-          onCardDelete={handleCardDelete}
+          onCardDelete={handleTrashIconClick}
           onCardLike={handleCardLike}
           cards={cards}
         />
@@ -158,25 +172,30 @@ function App() {
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdateAvatar={handleUpdateAvatar}
+          isLoading={isLoading} 
         />
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
           onUpdateUser={handleUpdateUser}
+          isLoading={isLoading} 
         />
 
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
           onAddPlace={handleAddPlaceSubmit}
+          isLoading={isLoading} 
         />
 
-        {/* <ConfirmPopup
+        <ConfirmPopup
         isOpen={isDeletePopupCard}
         onClose={closeAllPopups}
         onDelete={handleCardDelete}
-      />  */}
+        selectedCard={selectedCard}
+        isLoading={isLoading} 
+      />  
 
         <ImagePopup
           card={selectedCard}

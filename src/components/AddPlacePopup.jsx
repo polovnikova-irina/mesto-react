@@ -1,7 +1,7 @@
 import React, { useState,  useEffect } from "react";
 import { PopupWithForm } from "./PopupWithForm";
 
-export function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
+export function AddPlacePopup({ isOpen, onClose, onAddPlace, isLoading }) {
   const [name, setName] = useState("");
   const [link, setLink] = useState("");
 
@@ -32,9 +32,11 @@ export function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
       name="add-card"
       title="Новое место"
       buttonName="Создать"
+      isLoadingText="Создать..."
     >
       <label className="popup__form-element">
         <input

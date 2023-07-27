@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useState } from "react";
 import { PopupWithForm } from "./PopupWithForm";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-export function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
+export function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
   // Подписка на контекст
   const currentUser = useContext(CurrentUserContext);
 
@@ -38,9 +38,11 @@ export function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
       name="edit-profile"
       title="Редактировать профиль"
       buttonName="Сохранить"
+      isLoadingText="Сохранить..."
     >
       <label className="popup__form-element">
         <input
