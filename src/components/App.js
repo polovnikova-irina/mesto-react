@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../pages/index.css";
 import { api } from "../utils/api";
 import { Header } from "./Header";
 import { Main } from "./Main";
@@ -60,6 +59,7 @@ function App() {
       .sentUsersData(userData)
       .then((data) => {
         setСurrentUser(data);
+        closeAllPopups();
       })
       .catch((err) =>
         console.log("Ошибка при изменении данных о пользователе:", err)
@@ -71,6 +71,7 @@ function App() {
       .addAvatar(data)
       .then((res) => {
         setСurrentUser(res);
+        closeAllPopups();
       })
       .catch((err) =>
         console.log("Ошибка при изменении данных об аватаре:", err)
@@ -82,6 +83,7 @@ function App() {
       .createCard(cardData)
       .then((newCards) => {
         setCards([newCards, ...cards]);
+        closeAllPopups();
       })
       .catch((err) => console.log("Ошибка при добавлении карточки:", err));
   };
@@ -91,7 +93,9 @@ function App() {
       .deleteCard(card._id)
       .then(() => {
         //исключаем из массива state те карточки, у которых _id совпадает с _id переданной карточки card
+        //// Удаляем карточку из состояния cards после успешного удаления
         setCards((state) => state.filter((c) => c._id !== card._id));
+        // closeAllPopups();
       })
       .catch((error) => {
         console.error("Ошибка при удалении карточки:", error);
@@ -107,6 +111,9 @@ function App() {
         setCards((state) =>
           state.map((c) => (c._id === card._id ? newCard : c))
         );
+      })
+      .catch((error) => {
+        console.error("Ошибка при постановки лайка:", error);
       });
     } else {
       api

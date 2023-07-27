@@ -13,7 +13,7 @@ export function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
   useEffect(() => {
     setName(currentUser.name || "");
     setDescription(currentUser.about || "");
-  }, [currentUser]);
+  }, [currentUser, isOpen]);
 
   // Обработчики изменения полей ввода
   const handleNameChange = (e) => {
@@ -24,11 +24,6 @@ export function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
     setDescription(e.target.value);
   };
 
-  const resetForm = () => {
-    setName("");
-    setDescription("");
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     // Передаём значения управляемых компонентов во внешний обработчик
@@ -36,8 +31,6 @@ export function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
       name,
       job: description,
     });
-    onClose();
-    resetForm();
   };
 
   return (

@@ -45,13 +45,14 @@ export function Main(props) {
       <section className="photos" aria-label="Фото-контейнер">
         <ul className="photo">
           {props.cards.map((item) => (
+            <li key={item._id}>
             <Card
-              key={item._id}
               card={item}
               onCardClick={props.onCardClick}
               onCardDelete={props.onCardDelete}
               onCardLike={props.onCardLike}
             />
+            </li>
           ))}
         </ul>
       </section>

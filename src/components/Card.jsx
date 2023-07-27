@@ -23,8 +23,7 @@ export function Card({ card, onCardClick, onCardDelete, onCardLike }) {
   }
 
   return (
-    <>
-      <li className="photo__cell">
+      <div className="photo__cell">
           <img
             onClick={handleClick}
             className="photo__image"
@@ -50,7 +49,6 @@ export function Card({ card, onCardClick, onCardDelete, onCardLike }) {
             />
           )}
         </div>
-      </li>
-    </>
+      </div>
   );
 }
